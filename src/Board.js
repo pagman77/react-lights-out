@@ -33,24 +33,19 @@ function Board({ nrows, ncols, chanceLightStartsOn }) {
 
   /** create a board nrows high/ncols wide, each cell randomly lit or unlit */
   function createBoard() {
-    let initialBoard = [];
-
-    for (let i = nrows; i > 0; i--) {
-      let row = [];
-      for (let j = ncols; j > 0; j--) {
-        row.push(chanceLightStartsOn());
-      }
-      initialBoard.push(row);
-    }
-    return initialBoard;
+    return Array.from({ length: nrows }).map((row) =>
+      Array.from({ length: ncols }).map(
+        (cell) => Math.random() < chanceLightStartsOn
+      )
+    );
   }
   /** Returns true if all board cells have false value. */
   function hasWon(board) {
-    return board.every(row => row.every(cell => cell === false));
+    return board.every((row) => row.every((cell) => cell === false));
   }
 
   function flipCellsAround(coord) {
-    setBoard(oldBoard => {
+    setBoard((oldBoard) => {
       const [y, x] = coord.split("-").map(Number);
 
       const flipCell = (y, x, boardCopy) => {
@@ -61,7 +56,7 @@ function Board({ nrows, ncols, chanceLightStartsOn }) {
         }
       };
 
-      let newBoard = oldBoard.map(row => [...row]);
+      let newBoard = oldBoard.map((row) => [...row]);
 
       flipCell(y, x, newBoard);
       flipCell(y + 1, x, newBoard);
@@ -70,36 +65,32 @@ function Board({ nrows, ncols, chanceLightStartsOn }) {
       flipCell(y, x - 1, newBoard);
 
       return newBoard;
-
     });
   }
 
-  // if the game is won, just show a winning msg & render nothing else
+  const renderTable = [];
 
-  console.log("board", board);
+  for (let i = 0; i < board.length; i++) {
+    let renderRows = [];
+    for (let j = 0; j < board[i].length; j++) {
+      let coord = `${i}-${j}`;
+      renderRows.push(
+        <Cell
+          key={coord}
+          isLit={board[i][j]}
+          flipCellsAroundMe={(evt) => flipCellsAround(coord)}
+        />
+      );
+    }
+    renderTable.push(<tr key={i}>{renderRows}</tr>);
+  }
+
+  // if the game is won, just show a winning msg & render nothing else
   return (
     <table>
-      <tbody>
-      {hasWon(board) ? "You win!" :
-        board.map(function (row, i) {
-          return (
-            <tr key={i}>
-              {row.map(function (cell, j) {
-                return (
-                  <Cell
-                    id={`${i}-${j}`}
-                    key={`${i}-${j}`}
-                    isLit={cell}
-                    flipCellsAroundMe={flipCellsAround} />);
-              }
-              )}
-            </tr>
-          );
-        })
-
-      }
-      </tbody></table>);
-
+      <tbody>{hasWon(board) ? "You win!" : renderTable}</tbody>
+    </table>
+  );
 }
 
 export default Board;
