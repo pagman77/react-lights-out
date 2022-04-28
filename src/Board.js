@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Cell from "./Cell";
 import "./Board.css";
+import { render } from "@testing-library/react";
 
 /** Game board of Lights out.
  *
@@ -28,17 +29,24 @@ import "./Board.css";
  **/
 
 function Board({ nrows, ncols, chanceLightStartsOn }) {
-  const [board, setBoard] = useState(createBoard());
+  const [board, setBoard] = useState(createBoard);
 
   /** create a board nrows high/ncols wide, each cell randomly lit or unlit */
   function createBoard() {
     let initialBoard = [];
-    // TODO: create array-of-arrays of true/false values
+
+    for (let i = nrows; i > 0; i--) {
+      let row = [];
+      for (let j = ncols; j > 0; j--) {
+        row.push(chanceLightStartsOn());
+      }
+      initialBoard.push(row);
+    }
     return initialBoard;
   }
-
-  function hasWon() {
-    // TODO: check the board in state to determine whether the player has won.
+  /** Returns true if all board cells have false value. */
+  function hasWon(board) {
+    return board.every(row => row.every(cell => cell === false));
   }
 
   function flipCellsAround(coord) {
@@ -53,21 +61,45 @@ function Board({ nrows, ncols, chanceLightStartsOn }) {
         }
       };
 
-      // TODO: Make a (deep) copy of the oldBoard
+      let newBoard = oldBoard.map(row => [...row]);
 
-      // TODO: in the copy, flip this cell and the cells around it
+      flipCell(y, x, newBoard);
+      flipCell(y + 1, x, newBoard);
+      flipCell(y - 1, x, newBoard);
+      flipCell(y, x + 1, newBoard);
+      flipCell(y, x - 1, newBoard);
 
-      // TODO: return the copy
+      return newBoard;
+
     });
   }
 
   // if the game is won, just show a winning msg & render nothing else
 
-  // TODO
+  console.log("board", board);
+  return (
+    <table>
+      <tbody>
+      {hasWon(board) ? "You win!" :
+        board.map(function (row, i) {
+          return (
+            <tr key={i}>
+              {row.map(function (cell, j) {
+                return (
+                  <Cell
+                    id={`${i}-${j}`}
+                    key={`${i}-${j}`}
+                    isLit={cell}
+                    flipCellsAroundMe={flipCellsAround} />);
+              }
+              )}
+            </tr>
+          );
+        })
 
-  // make table board
+      }
+      </tbody></table>);
 
-  // TODO
 }
 
 export default Board;

@@ -6,7 +6,7 @@ import "./Cell.css";
  * This has no state --- just two props:
  *
  * - flipCellsAroundMe: a function rec'd from the board which flips this
- *      cell and the cells around of it
+ *      cell and the cells around it
  *
  * - isLit: boolean, is this cell lit?
  *
@@ -14,9 +14,9 @@ import "./Cell.css";
  *
  **/
 
-function Cell({ flipCellsAroundMe, isLit }) {
+function Cell({ flipCellsAroundMe, isLit, id }) {
   const classes = `Cell ${isLit ? "Cell-lit" : ""}`;
-  return <td className={classes} onClick={flipCellsAroundMe} />;
+  return <td className={classes} onClick={() => flipCellsAroundMe(id)} />;
 }
 
 export default Cell;
